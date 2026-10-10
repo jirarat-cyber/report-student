@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>รายงานการมาโรงเรียนของนักเรียน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Krub:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#0F172A;
+  --accent:#FF6B00;
+  --accent2:#FFB347;
+  --bg:#111827;
+  --soft:#1E293B;
+  --light:#F1F5F9;
+  --ink:#0F172A;
+  --muted:#64748B;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  font-family:'Krub','Noto Sans Thai','Sarabun',system-ui,sans-serif;
+  color:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;overflow:hidden;
+}
+.stage{
+  width:min(96vw, calc((100vh - 70px) * 16 / 9));
+  aspect-ratio:16/9;
+  position:relative;
+  container-type:inline-size;
+}
+.slide{
+  position:absolute;inset:0;
+  background:#fff;
+  border-radius:2.2cqw;
+  box-shadow:0 1.2cqw 4cqw rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.06);
+  padding:4cqw 4.4cqw 4.4cqw;
+  display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .35s ease;
+  overflow:hidden;
+}
+.slide.active{opacity:1;visibility:visible;pointer-events:auto}
+.slide::before{
+  content:"";position:absolute;right:-9cqw;top:-9cqw;width:26cqw;height:26cqw;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,107,0,.14),rgba(255,107,0,0) 70%);
+  pointer-events:none;
+}
+.tag{
+  align-self:flex-start;
+  background:var(--primary);color:#fff;
+  font-size:1.25cqw;font-weight:600;letter-spacing:.04em;
+  padding:.5cqw 1.5cqw;border-radius:99px;
+  display:inline-flex;align-items:center;gap:.6cqw;
+}
+.tag::before{content:"";width:.7cqw;height:.7cqw;border-radius:50%;background:var(--accent)}
+h1,h2{font-weight:700;line-height:1.25;color:var(--primary)}
+h2{font-size:3.5cqw;margin:1.6cqw 0 2.2cqw}
+.grad{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.pageno{
+  position:absolute;left:4.4cqw;bottom:1.8cqw;
+  font-size:1.2cqw;font-weight:600;color:var(--muted);
+}
+.pageno b{color:var(--accent)}
+.note{position:absolute;right:4.4cqw;bottom:1.8cqw;font-size:1.05cqw;color:var(--muted)}
+
+.ico{
+  width:5cqw;height:5cqw;border-radius:50%;
+  background:var(--accent);
+  display:grid;place-items:center;flex:none;
+  transition:transform .25s ease, box-shadow .25s ease;
+  box-shadow:0 .5cqw 1.2cqw rgba(255,107,0,.35);
+  cursor:default;
+}
+.ico svg{width:55%;height:55%;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ico:hover{transform:scale(1.12);box-shadow:0 .7cqw 1.6cqw rgba(255,107,0,.5)}
+.ico.navy{background:var(--primary);box-shadow:0 .5cqw 1.2cqw rgba(15,23,42,.3)}
+.ico.sm{width:4cqw;height:4cqw}
+
+.card{
+  border-radius:1.6cqw;padding:1.8cqw 2cqw;color:#fff;
+  box-shadow:0 .4cqw 1.2cqw rgba(15,23,42,.18);
+}
+.c1{background:var(--primary)}
+.c2{background:var(--soft)}
+.c3{background:#334155}
+.cl{background:var(--light);color:var(--ink);box-shadow:inset 0 0 0 1px #E2E8F0}
+.card h3{font-size:1.9cqw;font-weight:700;margin-bottom:.5cqw}
+.card p{font-size:1.45cqw;line-height:1.55;opacity:.88}
+.big{font-size:4.6cqw;font-weight:700;line-height:1;color:var(--accent2)}
+.cl .big{color:var(--accent)}
+
+/* float-up animation */
+.slide .rise{opacity:0;transform:translateY(3cqw)}
+.slide.active .rise{animation:rise .7s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i,0) * .16s + .1s)}
+@keyframes rise{to{opacity:1;transform:none}}
+
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:2cqw;flex:1;min-height:0;margin-bottom:2.2cqw}
+.grid3 .card{display:flex;flex-direction:column;gap:1.2cqw;justify-content:flex-start}
+
+/* cover */
+.cover{display:grid;grid-template-columns:1.25fr .75fr;gap:3cqw;flex:1;align-items:center}
+.cover h1{font-size:5.4cqw;margin:1.6cqw 0 1.2cqw}
+.cover .sub{font-size:1.9cqw;color:var(--muted);line-height:1.6;margin-bottom:2.4cqw}
+.cover .stack{display:flex;flex-direction:column;gap:1.4cqw}
+.who{display:flex;align-items:center;gap:1.4cqw}
+.who h3{font-size:1.7cqw}
+.who p{font-size:1.3cqw}
+.hero{
+  position:relative;aspect-ratio:1;width:100%;
+  display:grid;place-items:center;
+}
+.hero .ring{position:absolute;inset:6%;border-radius:50%;border:.25cqw dashed rgba(255,107,0,.45)}
+.hero .core{
+  width:46%;aspect-ratio:1;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:grid;place-items:center;box-shadow:0 1.2cqw 3cqw rgba(255,107,0,.35);
+  transition:transform .3s;
+}
+.hero .core:hover{transform:scale(1.06)}
+.hero .core svg{width:55%;height:55%;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hero .sat{position:absolute}
+.hero .s1{top:4%;left:50%;transform:translateX(-50%)}
+.hero .s2{bottom:12%;left:6%}
+.hero .s3{bottom:12%;right:6%}
+.hero .sat .ico{width:6.4cqw;height:6.4cqw;background:var(--primary)}
+.hero .sat .ico:hover{transform:scale(1.12)}
+
+/* chart */
+.split{display:grid;grid-template-columns:1.35fr .65fr;gap:2cqw;flex:1;min-height:0;margin-bottom:2.2cqw}
+.chart{display:flex;flex-direction:column}
+.chart h3{font-size:1.7cqw;margin-bottom:1cqw}
+.bars{flex:1;display:flex;align-items:flex-end;gap:2cqw;padding:0 1cqw;border-bottom:.15cqw solid rgba(255,255,255,.25);min-height:0}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:.6cqw}
+.bar .v{font-size:1.4cqw;font-weight:600}
+.bar .b{
+  width:100%;border-radius:.9cqw .9cqw 0 0;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  height:0;
+}
+.slide.active .bar .b{animation:grow .9s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i) * .1s + .6s)}
+@keyframes grow{to{height:var(--h)}}
+.bar.dim .b{background:#475569}
+.labels{display:flex;gap:2cqw;padding:.8cqw 1cqw 0}
+.labels span{flex:1;text-align:center;font-size:1.3cqw;opacity:.85}
+.side{display:flex;flex-direction:column;gap:2cqw}
+.side .card{flex:1;display:flex;align-items:center;gap:1.4cqw}
+.side .card p{font-size:1.5cqw;opacity:1}
+
+/* progress rows */
+.meter{height:1cqw;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;margin-top:auto}
+.meter i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.slide.active .meter i{animation:fill 1s ease forwards;animation-delay:calc(var(--i) * .16s + .7s)}
+@keyframes fill{to{width:var(--w)}}
+
+/* closing */
+.thanks{
+  text-align:center;font-size:1.7cqw;color:var(--muted);margin-bottom:2.2cqw
+}
+.thanks b{color:var(--accent)}
+
+/* controls */
+.controls{display:flex;align-items:center;gap:14px;color:#94A3B8;font-size:14px}
+.controls button{
+  background:var(--soft);color:#fff;border:1px solid rgba(255,255,255,.1);
+  width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:18px;font-family:inherit;
+  transition:background .2s, transform .2s;
+}
+.controls button:hover{background:var(--accent);transform:scale(1.08)}
+.dots{display:flex;gap:8px}
+.dots i{width:9px;height:9px;border-radius:50%;background:#334155;cursor:pointer;transition:all .25s}
+.dots i.on{background:var(--accent);width:26px;border-radius:99px}
+
+@media (prefers-reduced-motion:reduce){
+  .slide .rise{opacity:1;transform:none;animation:none!important}
+  .slide.active .bar .b{animation:none!important;height:var(--h)}
+  .slide.active .meter i{animation:none!important;width:var(--w)}
+}
+</style>
+</head>
+<body>
+
+<main class="stage" id="stage">
+
+<!-- 1 ปก -->
+<section class="slide active">
+  <span class="tag rise" style="--i:0">รายงาน</span>
+  <div class="cover">
+    <div>
+      <h1 class="rise" style="--i:1">รายงานการ<span class="grad">มาโรงเรียน</span><br>ของนักเรียน</h1>
+      <p class="sub rise" style="--i:2">สรุปภาพรวมการมาเรียนของนักเรียน พร้อมสิ่งที่เราทำ และสิ่งที่อยากชวนผู้ปกครองช่วยกัน</p>
+      <div class="stack">
+        <div class="card c1 who rise" style="--i:3">
+          <div class="ico sm"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div><h3>นำเสนอโดย นางสาวจิรารัตน์ แซ่ลิ่ม</h3><p>ครู โรงเรียนสามบ่อวิทยา</p></div>
+        </div>
+        <div class="card c2 who rise" style="--i:4">
+          <div class="ico sm"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div><h3>สำหรับผู้บริหารโรงเรียนและผู้ปกครอง</h3><p>เล่าให้ฟังแบบเข้าใจง่าย ๆ</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="hero rise" style="--i:2">
+      <div class="ring"></div>
+      <div class="core"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></div>
+      <div class="sat s1"><div class="ico"><svg viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg></div></div>
+      <div class="sat s2"><div class="ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div></div>
+      <div class="sat s3"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></div></div>
+    </div>
+  </div>
+  <div class="pageno"><b>01</b> / 06</div>
+</section>
+
+<!-- 2 ภาพรวม -->
+<section class="slide">
+  <span class="tag rise" style="--i:0">ภาพรวม</span>
+  <h2 class="rise" style="--i:1">ภาพรวมการมาเรียน<span class="grad">ภาคเรียนนี้</span></h2>
+  <div class="grid3">
+    <div class="card c1 rise" style="--i:2">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div class="big">94.5%</div>
+      <h3>อัตราการมาเรียนเฉลี่ย</h3>
+      <p>นักเรียนส่วนใหญ่มาเรียนสม่ำเสมอ ถือว่าเป็นสัญญาณที่ดี</p>
+    </div>
+    <div class="card c2 rise" style="--i:3">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="big">1,240</div>
+      <h3>นักเรียนทั้งหมด</h3>
+      <p>นับรวมทุกระดับชั้นที่ติดตามการมาเรียนรายวัน</p>
+    </div>
+    <div class="card cl rise" style="--i:4">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+      <div class="big">38</div>
+      <h3>นักเรียนที่ต้องดูแลเป็นพิเศษ</h3>
+      <p>ขาดเรียนบ่อยกว่าปกติ ครูกำลังติดตามใกล้ชิด</p>
+    </div>
+  </div>
+  <div class="pageno"><b>02</b> / 06</div>
+  <div class="note">* ตัวเลขเป็นข้อมูลตัวอย่าง</div>
+</section>
+
+<!-- 3 แนวโน้ม -->
+<section class="slide">
+  <span class="tag rise" style="--i:0">แนวโน้ม</span>
+  <h2 class="rise" style="--i:1">การมาเรียนรายเดือน <span class="grad">ค่อนข้างคงที่</span></h2>
+  <div class="split">
+    <div class="card c1 chart rise" style="--i:2">
+      <h3>อัตราการมาเรียน (%) แยกตามเดือน</h3>
+      <div class="bars">
+        <div class="bar" style="--h:88%;--i:0"><span class="v">96</span><div class="b"></div></div>
+        <div class="bar" style="--h:84%;--i:1"><span class="v">95</span><div class="b"></div></div>
+        <div class="bar dim" style="--h:70%;--i:2"><span class="v">92</span><div class="b"></div></div>
+        <div class="bar" style="--h:78%;--i:3"><span class="v">94</span><div class="b"></div></div>
+        <div class="bar" style="--h:84%;--i:4"><span class="v">95</span><div class="b"></div></div>
+      </div>
+      <div class="labels"><span>พ.ค.</span><span>มิ.ย.</span><span>ก.ค.</span><span>ส.ค.</span><span>ก.ย.</span></div>
+    </div>
+    <div class="side">
+      <div class="card c2 rise" style="--i:3">
+        <div class="ico sm"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></div>
+        <p>เดือน ก.ค. ต่ำสุด เพราะช่วงฝนตกหนักและมีไข้หวัดระบาด</p>
+      </div>
+      <div class="card cl rise" style="--i:4">
+        <div class="ico sm"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <p>หลังจากนั้นกลับมาดีขึ้นต่อเนื่องทุกเดือน</p>
+      </div>
+    </div>
+  </div>
+  <div class="pageno"><b>03</b> / 06</div>
+  <div class="note">* ตัวเลขเป็นข้อมูลตัวอย่าง</div>
+</section>
+
+<!-- 4 สาเหตุ -->
+<section class="slide">
+  <span class="tag rise" style="--i:0">สาเหตุ</span>
+  <h2 class="rise" style="--i:1">ทำไมนักเรียนถึง<span class="grad">ขาดเรียน</span></h2>
+  <div class="grid3">
+    <div class="card c1 rise" style="--i:2">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg></div>
+      <h3>เจ็บป่วย</h3>
+      <p>ไม่สบายและต้องพักรักษาตัวที่บ้าน เป็นเหตุผลที่พบมากที่สุด</p>
+      <div class="big" style="font-size:3cqw">45%</div>
+      <div class="meter"><i style="--w:45%"></i></div>
+    </div>
+    <div class="card c2 rise" style="--i:3">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M3 12h13l-3-3m3 3-3 3"/><path d="M3 5v14"/><circle cx="19" cy="19" r="2"/><circle cx="7" cy="19" r="0"/></svg></div>
+      <h3>การเดินทาง</h3>
+      <p>บ้านอยู่ไกล หรือไม่มีคนรับส่งในบางวัน โดยเฉพาะหน้าฝน</p>
+      <div class="big" style="font-size:3cqw">30%</div>
+      <div class="meter"><i style="--w:30%"></i></div>
+    </div>
+    <div class="card cl rise" style="--i:4">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V21H3z"/><path d="M9 21v-7h6v7"/></svg></div>
+      <h3>ภาระที่บ้าน</h3>
+      <p>ช่วยงานครอบครัว หรือมีธุระจำเป็นอื่น ๆ ที่ต้องดูแล</p>
+      <div class="big" style="font-size:3cqw">25%</div>
+      <div class="meter" style="background:#CBD5E1"><i style="--w:25%"></i></div>
+    </div>
+  </div>
+  <div class="pageno"><b>04</b> / 06</div>
+  <div class="note">* ตัวเลขเป็นข้อมูลตัวอย่าง</div>
+</section>
+
+<!-- 5 สิ่งที่ทำ -->
+<section class="slide">
+  <span class="tag rise" style="--i:0">แนวทางดูแล</span>
+  <h2 class="rise" style="--i:1">สิ่งที่โรงเรียน<span class="grad">กำลังทำอยู่</span></h2>
+  <div class="grid3">
+    <div class="card c1 rise" style="--i:2">
+      <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></div>
+      <h3>เช็กชื่อและติดตามทุกวัน</h3>
+      <p>ครูที่ปรึกษาบันทึกการมาเรียนรายวัน เพื่อสังเกตความผิดปกติได้เร็ว</p>
+    </div>
+    <div class="card c2 rise" style="--i:3">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></div>
+      <h3>โทรหาผู้ปกครอง</h3>
+      <p>ถ้านักเรียนขาดต่อเนื่อง ครูจะโทรหรือแจ้งผ่านไลน์เพื่อสอบถามและช่วยกันแก้ไข</p>
+    </div>
+    <div class="card cl rise" style="--i:4">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg></div>
+      <h3>พูดคุยและให้กำลังใจ</h3>
+      <p>คุยกับนักเรียนรายบุคคล พร้อมกิจกรรมให้รางวัลคนมาเรียนสม่ำเสมอ</p>
+    </div>
+  </div>
+  <div class="pageno"><b>05</b> / 06</div>
+</section>
+
+<!-- 6 ขอความร่วมมือ -->
+<section class="slide">
+  <span class="tag rise" style="--i:0">ขอความร่วมมือ</span>
+  <h2 class="rise" style="--i:1">มาช่วยกัน<span class="grad">ดูแลลูกหลานของเรา</span></h2>
+  <div class="grid3">
+    <div class="card c1 rise" style="--i:2">
+      <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+      <h3>ส่งลูกมาให้ตรงเวลา</h3>
+      <p>การมาเรียนสม่ำเสมอ ช่วยให้เด็กตามเนื้อหาทันและมีความสุขกับการเรียน</p>
+    </div>
+    <div class="card c2 rise" style="--i:3">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <h3>แจ้งครูเมื่อลา</h3>
+      <p>บอกครูที่ปรึกษาให้ทราบทุกครั้งที่ลูกต้องหยุด เพื่อให้เราช่วยดูเรื่องงานที่ขาดไป</p>
+    </div>
+    <div class="card cl rise" style="--i:4">
+      <div class="ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <h3>มีปัญหา คุยกับครูได้เลย</h3>
+      <p>เรื่องการเดินทางหรือเรื่องที่บ้าน ลองปรึกษาครู เราพร้อมช่วยหาทางออกด้วยกัน</p>
+    </div>
+  </div>
+  <p class="thanks rise" style="--i:5"><b>ขอบคุณ</b>ผู้บริหารและผู้ปกครองทุกท่านที่ร่วมรับฟังค่ะ</p>
+  <div class="pageno"><b>06</b> / 06</div>
+</section>
+
+</main>
+
+<nav class="controls">
+  <button id="prev" aria-label="หน้าก่อนหน้า">‹</button>
+  <div class="dots" id="dots"></div>
+  <button id="next" aria-label="หน้าถัดไป">›</button>
+</nav>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var dotsEl=document.getElementById('dots');
+  var cur=0;
+  slides.forEach(function(_,i){
+    var d=document.createElement('i');
+    d.onclick=function(){go(i)};
+    dotsEl.appendChild(d);
+  });
+  var dots=[].slice.call(dotsEl.children);
+  function go(n){
+    n=Math.max(0,Math.min(slides.length-1,n));
+    slides[cur].classList.remove('active');
+    cur=n;
+    // reflow so animations restart
+    void slides[cur].offsetWidth;
+    slides[cur].classList.add('active');
+    dots.forEach(function(d,i){d.classList.toggle('on',i===cur)});
+    try{history.replaceState(null,'','#'+(cur+1))}catch(e){}
+  }
+  document.getElementById('prev').onclick=function(){go(cur-1)};
+  document.getElementById('next').onclick=function(){go(cur+1)};
+  document.addEventListener('keydown',function(e){
+    if(['ArrowRight','ArrowDown','PageDown',' ','Enter'].indexOf(e.key)>-1){e.preventDefault();go(cur+1)}
+    else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].indexOf(e.key)>-1){e.preventDefault();go(cur-1)}
+    else if(e.key==='Home')go(0);
+    else if(e.key==='End')go(slides.length-1);
+  });
+  var sx=null;
+  document.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(sx===null)return;
+    var dx=e.changedTouches[0].clientX-sx;
+    if(Math.abs(dx)>50)go(cur+(dx<0?1:-1));
+    sx=null;
+  });
+  var start=parseInt((location.hash||'#1').slice(1),10)||1;
+  slides[0].classList.remove('active');
+  cur=0;go(start-1);
+})();
+</script>
+</body>
+</html>
